@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
+
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]
@@ -19,16 +21,41 @@ public class PlayerMovement : MonoBehaviour
     private float lectureDistance = 0.1f;
     [SerializeField]
     private LayerMask layersToIgnore = new LayerMask();
+    [SerializeField]
+    private float jumpHeigth = 0.0f;
+    [SerializeField]
+    private float timeToJumpApex = 0.0f;
+    [SerializeField]
+    private float CoyoteTimePeriod = 0.1f;
+    [SerializeField]
+    private float jumpInputBuffer = 0.1f;
+    [SerializeField]
+    private float appexPoint = 0.1f;
     private List<Vector2> collisionDetectionPoints = new List<Vector2>();
     private CapsuleCollider2D playerCollider;
     private Vector2 desiredMovement = new Vector2();
     private Vector2 finalMovement = new Vector2();
     private Bounds colliderBounds;
-    
+    private float finalGravityForce = 0.0f;
+    private float lastTimeGrounded = 0.0f;
+    private float lastTimeJumpPressed = float.MaxValue;
+    private bool isGrounded = false;
+    private bool jumpBufferActive = false;
+    private bool CanJump
+    {
+        get
+        {
+            return (Time.time - lastTimeGrounded < CoyoteTimePeriod);
+        }
+    }
+
 
     private void Start()
     {
         SetCollisionDetectionPoints();
+        gravityForce = -(2 * jumpHeigth) / Mathf.Pow(timeToJumpApex, 2);
+        jumpForce = Mathf.Abs(gravityForce) * timeToJumpApex;
+        finalGravityForce = gravityForce;
     }
     private void SetCollisionDetectionPoints()
     {
@@ -43,11 +70,14 @@ public class PlayerMovement : MonoBehaviour
     {
         playerInput.OnMoveEvent += ReadPlayerMovement;
         playerInput.OnJumpEvent += Jump;
+        playerInput.OnJumpStopEvent += JumpStop;
     }
     private void OnDisable()
     {
         playerInput.OnMoveEvent -= ReadPlayerMovement;
         playerInput.OnJumpEvent -= Jump;
+        playerInput.OnJumpStopEvent -= JumpStop;
+    
     }
     private void ReadPlayerMovement(Vector2 value)
     {
@@ -55,26 +85,45 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Update()
     {
+        isGrounded = IsGrounded();
+        CheckJumpBuffer();
         Move();
-        IsGrounded();
     }
     private void CalculateHorizontalVelocity()
     {
-        if (IsGrounded() && desiredMovement.y <= 0.0f)
+        finalGravityForce = gravityForce;
+        if (isGrounded && desiredMovement.y <= 0.0f)
         {
-            Debug.LogError("Groudned");
             desiredMovement.y = 0.0f;
             return;
         }
-        Debug.LogError("NotGroudned");
-        desiredMovement.y -= gravityForce;
+        if (Mathf.Abs(desiredMovement.y) < appexPoint)
+        {
+            finalGravityForce = gravityForce / 10;
+        }
+        if (desiredMovement.y < 0.0f)
+        {
+            finalGravityForce = gravityForce * 2;
+        }
+        desiredMovement.y += finalGravityForce * Time.deltaTime;
 
     }
     private void Jump()
     {
-        if (IsGrounded() )
+        
+        if (CanJump)
         {
             desiredMovement.y = jumpForce;
+            jumpBufferActive = false;
+            return;
+        }
+        lastTimeJumpPressed = Time.time;
+    }
+    private void JumpStop()
+    {
+        if (desiredMovement.y > 0.0f)
+        {
+            desiredMovement.y = desiredMovement.y / 2;
         }
     }
     private bool IsGrounded()
@@ -92,7 +141,8 @@ public class PlayerMovement : MonoBehaviour
             {
                 continue;
             }
-            Debug.LogError(ray.collider.name);
+            lastTimeGrounded = Time.time;
+            ShouldJumpAfterFall();
             return true;
   
         }
@@ -102,8 +152,28 @@ public class PlayerMovement : MonoBehaviour
         {
             return false;
         }
+        lastTimeGrounded = Time.time;
+        ShouldJumpAfterFall();
         return true;
 
+    }
+    private void ShouldJumpAfterFall()
+    {
+        if (isGrounded)
+        {
+            return;
+        }
+        if (Mathf.Abs(Time.time - lastTimeJumpPressed) < jumpInputBuffer)
+        {
+            jumpBufferActive = true;
+        }
+    }
+    private void CheckJumpBuffer()
+    {
+        if (jumpBufferActive)
+        {
+            Jump();
+        }
     }
     private bool HorizontalCollisionCheck(Vector2 direction)
     {
@@ -131,7 +201,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 continue;
             }
-            Debug.LogError(ray.collider.name);
             return true;
 
         }
@@ -155,6 +224,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void OnDrawGizmos()
     {
+        Handles.Label(transform.position + Vector3.up * 2, desiredMovement.y.ToString()) ;
         if (!playerCollider)
         {
             return;
@@ -170,5 +240,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Gizmos.DrawSphere(item.ToVector3(), 0.1f);
         }
+       
+
     }
 }
