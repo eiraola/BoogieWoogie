@@ -71,6 +71,15 @@ public partial class @Input: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Start"",
+                    ""type"": ""Button"",
+                    ""id"": ""b4fc7de2-c749-457e-a19a-9b6088390f72"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -326,6 +335,28 @@ public partial class @Input: IInputActionCollection2, IDisposable
                     ""action"": ""Interchange"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f6050c6f-070d-4462-b0cf-0670418f3dec"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Start"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ba575292-295d-43d2-a5e5-61597a7c6903"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Start"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -362,6 +393,7 @@ public partial class @Input: IInputActionCollection2, IDisposable
         m_Player_SelectR = m_Player.FindAction("SelectR", throwIfNotFound: true);
         m_Player_SelectL = m_Player.FindAction("SelectL", throwIfNotFound: true);
         m_Player_Interchange = m_Player.FindAction("Interchange", throwIfNotFound: true);
+        m_Player_Start = m_Player.FindAction("Start", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -428,6 +460,7 @@ public partial class @Input: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_SelectR;
     private readonly InputAction m_Player_SelectL;
     private readonly InputAction m_Player_Interchange;
+    private readonly InputAction m_Player_Start;
     public struct PlayerActions
     {
         private @Input m_Wrapper;
@@ -437,6 +470,7 @@ public partial class @Input: IInputActionCollection2, IDisposable
         public InputAction @SelectR => m_Wrapper.m_Player_SelectR;
         public InputAction @SelectL => m_Wrapper.m_Player_SelectL;
         public InputAction @Interchange => m_Wrapper.m_Player_Interchange;
+        public InputAction @Start => m_Wrapper.m_Player_Start;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -461,6 +495,9 @@ public partial class @Input: IInputActionCollection2, IDisposable
             @Interchange.started += instance.OnInterchange;
             @Interchange.performed += instance.OnInterchange;
             @Interchange.canceled += instance.OnInterchange;
+            @Start.started += instance.OnStart;
+            @Start.performed += instance.OnStart;
+            @Start.canceled += instance.OnStart;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -480,6 +517,9 @@ public partial class @Input: IInputActionCollection2, IDisposable
             @Interchange.started -= instance.OnInterchange;
             @Interchange.performed -= instance.OnInterchange;
             @Interchange.canceled -= instance.OnInterchange;
+            @Start.started -= instance.OnStart;
+            @Start.performed -= instance.OnStart;
+            @Start.canceled -= instance.OnStart;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -522,5 +562,6 @@ public partial class @Input: IInputActionCollection2, IDisposable
         void OnSelectR(InputAction.CallbackContext context);
         void OnSelectL(InputAction.CallbackContext context);
         void OnInterchange(InputAction.CallbackContext context);
+        void OnStart(InputAction.CallbackContext context);
     }
 }

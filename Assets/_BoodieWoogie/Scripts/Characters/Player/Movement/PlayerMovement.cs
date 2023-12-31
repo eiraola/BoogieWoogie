@@ -85,6 +85,10 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Update()
     {
+        if (GameManager.Instance.IsStoped)
+        {
+            return;
+        }
         isGrounded = IsGrounded();
         CheckJumpBuffer();
         Move();

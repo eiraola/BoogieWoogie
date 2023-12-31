@@ -12,6 +12,7 @@ public class PlayerInput : ScriptableObject ,IPlayerActions
     public event Action OnJumpStopEvent;
     public event Action<EInterchangableSide> OnSelectEvent;
     public event Action OnInterchangeEvent;
+    public event Action OnStartEvent;
 
     public void OnInterchange(InputAction.CallbackContext context)
     {
@@ -51,6 +52,14 @@ public class PlayerInput : ScriptableObject ,IPlayerActions
         if (context.performed)
         {
             OnSelectEvent?.Invoke(EInterchangableSide.R);
+        }
+    }
+
+    public void OnStart(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnStartEvent?.Invoke();
         }
     }
 

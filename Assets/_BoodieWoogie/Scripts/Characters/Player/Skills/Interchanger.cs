@@ -89,6 +89,16 @@ public struct InterchangableSlot
         interchangable.Interchange(newPos);
         interchangable.Unselect();
         interchangable = null;
+       
+    }
+    public void Reset()
+    {
+        if (!IsValid())
+        {
+            return;
+        }
+        interchangable.Unselect();
+        interchangable = null;
     }
     
 }
@@ -110,11 +120,13 @@ public class Interchanger : MonoBehaviour
     {
         playerInput.OnSelectEvent += SelectInterChangable;
         playerInput.OnInterchangeEvent += Interchange;
+        playerInput.OnStartEvent += CancelInterchange;
     }
     private void OnDisable()
     {
         playerInput.OnSelectEvent -= SelectInterChangable;
         playerInput.OnInterchangeEvent -= Interchange;
+        playerInput.OnStartEvent -= CancelInterchange;
     }
     private void GetInterchangables()
     {
@@ -136,6 +148,7 @@ public class Interchanger : MonoBehaviour
     }
     void SelectInterChangable(EInterchangableSide side)
     {
+        GameManager.Instance.StopGame();
         if (side == EInterchangableSide.R)
         {
             interchangableL.SelectInterChangable(interchangables);
@@ -152,5 +165,12 @@ public class Interchanger : MonoBehaviour
         Vector3 auxMovablePosition = interchangableL.Position;
         interchangableL.Interchange(interchangableR.Position);
         interchangableR.Interchange(auxMovablePosition);
+        GameManager.Instance.RunGame();
+    }
+    private void CancelInterchange()
+    {
+        interchangableL.Reset();
+        interchangableR.Reset();
+        GameManager.Instance.RunGame();
     }
 }
