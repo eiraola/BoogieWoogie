@@ -130,8 +130,8 @@ public class Interchanger : MonoBehaviour
     }
     private void GetInterchangables()
     {
-        GameObject[] interchangablesGO = GameObject.FindGameObjectsWithTag("Interchangable");
-        GameObject playerGO = GameObject.FindGameObjectWithTag("Player");
+        GameObject[] interchangablesGO = GameObject.FindGameObjectsWithTag(Constants.TAG_INTERCHANGABLE);
+        GameObject playerGO = GameObject.FindGameObjectWithTag(Constants.TAG_PLAYER);
         interchangables = new List<IInterchangable>();
         if (playerGO.TryGetComponent<IInterchangable>(out IInterchangable interchangablePlayer))
         {

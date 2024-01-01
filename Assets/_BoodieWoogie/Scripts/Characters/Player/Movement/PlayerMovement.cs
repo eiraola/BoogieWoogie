@@ -5,14 +5,11 @@ using UnityEditor;
 
 public class PlayerMovement : MonoBehaviour
 {
+    
     [SerializeField]
     private PlayerInput playerInput;
     [SerializeField]
     private float speed = 1.0f;
-    [SerializeField]
-    private float gravityForce = 1.6f;
-    [SerializeField]
-    private float jumpForce = 1.6f;
     [SerializeField]
     private int groundLectureNumber = 4;
     [SerializeField]
@@ -31,6 +28,8 @@ public class PlayerMovement : MonoBehaviour
     private float jumpInputBuffer = 0.1f;
     [SerializeField]
     private float appexPoint = 0.1f;
+    private float gravityForce = 1.6f;
+    private float jumpForce = 1.6f;
     private List<Vector2> collisionDetectionPoints = new List<Vector2>();
     private CapsuleCollider2D playerCollider;
     private Vector2 desiredMovement = new Vector2();
@@ -41,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
     private float lastTimeJumpPressed = float.MaxValue;
     private bool isGrounded = false;
     private bool jumpBufferActive = false;
+    private bool jumpButtonPressed = false;
     private bool CanJump
     {
         get
@@ -101,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
             desiredMovement.y = 0.0f;
             return;
         }
-        if (Mathf.Abs(desiredMovement.y) < appexPoint)
+        if (Mathf.Abs(desiredMovement.y) < appexPoint && jumpButtonPressed)
         {
             finalGravityForce = gravityForce / 10;
         }
@@ -114,6 +114,11 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Jump()
     {
+        jumpButtonPressed = true;
+        JumpAction();
+    }
+    private void JumpAction()
+    {
         
         if (CanJump)
         {
@@ -125,6 +130,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void JumpStop()
     {
+        jumpButtonPressed = false;
         if (desiredMovement.y > 0.0f)
         {
             desiredMovement.y = desiredMovement.y / 2;
@@ -176,7 +182,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (jumpBufferActive)
         {
-            Jump();
+            JumpAction();
         }
     }
     private bool HorizontalCollisionCheck(Vector2 direction)
