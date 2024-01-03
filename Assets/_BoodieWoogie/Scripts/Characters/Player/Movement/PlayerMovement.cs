@@ -212,19 +212,29 @@ public class PlayerMovement : MonoBehaviour
     private void Move()
     {
         desiredMovement.y = CalculateVerticalVelocity();
-        finalMovement = desiredMovement * Time.deltaTime;
-        if (HorizontalCollisionCheck((desiredMovement * Vector2.right).normalized))
+        transform.position += ContraintMovement(desiredMovement * Time.deltaTime).ToVector3();
+    }
+    private Vector2 ContraintMovement(Vector2 currentMovement)
+    {
+        if (HorizontalCollisionCheck((currentMovement * Vector2.right).normalized))
         {
-            finalMovement.x = 0.0f;
+            currentMovement.x = 0.0f;
         }
-        finalMovement.y = MaxVerticalSpeed(finalMovement.y);
-        if (finalMovement.y == 0.0f)
+        currentMovement.y = MaxVerticalSpeed(currentMovement.y);
+        CheckIfGrounded(currentMovement);
+        return currentMovement;
+    }
+    private void CheckIfGrounded(Vector2 currentMovement)
+    {
+        if (currentMovement.y == 0.0f)
         {
+            if (desiredMovement.y < 0.0f)
+            {
+                //We just landed, do the input buffer check here
+            }
             lastTimeGrounded = Time.time;
             desiredMovement.y = 0.0f;
         }
-        Debug.LogError(finalMovement.y);
-        transform.position += finalMovement.ToVector3();
     }
     private void OnDrawGizmos()
     {
