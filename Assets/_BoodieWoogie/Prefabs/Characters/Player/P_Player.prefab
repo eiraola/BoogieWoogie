@@ -182,6 +182,7 @@ GameObject:
   - component: {fileID: 4369591238608116389}
   - component: {fileID: 8483158837836748548}
   - component: {fileID: 6854531838941747234}
+  - component: {fileID: 4694777658376864456}
   - component: {fileID: 4163074928232251696}
   m_Layer: 3
   m_Name: P_Player
@@ -308,8 +309,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerInput: {fileID: 11400000, guid: be33c0f26a5a17f4696df5fa5ada9058, type: 2}
   speed: 7
-  gravityForce: 1
-  jumpForce: 15
   groundLectureNumber: 4
   lateralLectureNumber: 4
   lectureDistance: 0.05
@@ -321,6 +320,8 @@ MonoBehaviour:
   CoyoteTimePeriod: 0.1
   jumpInputBuffer: 0.1
   appexPoint: 0.4
+  numberOfAirJumps: 0
+  maxFallSpeed: 15
 --- !u!114 &8483158837836748548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,6 +349,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SelectedSpriteR: {fileID: 5558204407835078524}
   SelectedSpriteL: {fileID: 4746605282747289654}
+--- !u!114 &4694777658376864456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6719333238343742104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3db800d9baed64aa16bae24ab482f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 10
+  OnHpLimitReachedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDamageDoneEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!96 &4163074928232251696
 TrailRenderer:
   serializedVersion: 3

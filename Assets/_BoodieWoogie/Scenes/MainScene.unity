@@ -1635,6 +1635,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4369591238608116389, guid: 233b69c3dfa597544abade223e22d2fe, type: 3}
+      propertyPath: maxFallSpeed
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4369591238608116389, guid: 233b69c3dfa597544abade223e22d2fe, type: 3}
+      propertyPath: numberOfAirJumps
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6719333238343742104, guid: 233b69c3dfa597544abade223e22d2fe, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1699,6 +1707,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4951595131690011909, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
+      propertyPath: OnPlateInteractionEvent.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951595131690011909, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
+      propertyPath: OnPlateInteractionEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951595131690011909, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
+      propertyPath: OnPlateInteractionEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1595008486}
+    - target: {fileID: 4951595131690011909, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
+      propertyPath: OnPlateInteractionEvent.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951595131690011909, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
+      propertyPath: OnPlateInteractionEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Interact
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951595131690011909, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
+      propertyPath: OnPlateInteractionEvent.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Door, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4951595131690011909, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
+      propertyPath: OnPlateInteractionEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 4978457182555559816, guid: 65e64c91827998f42aa178f5886a0c85, type: 3}
       propertyPath: m_Name
       value: Plate

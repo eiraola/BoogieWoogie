@@ -28,6 +28,10 @@ public class PlayerMovement : MonoBehaviour
     private float jumpInputBuffer = 0.1f;
     [SerializeField]
     private float appexPoint = 0.1f;
+    [SerializeField]
+    private int numberOfAirJumps = 1;
+    [SerializeField]
+    private float maxFallSpeed = 20.0f;
     private float gravityForce = 1.6f;
     private float jumpForce = 1.6f;
     private List<Vector2> collisionDetectionPoints = new List<Vector2>();
@@ -41,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded = false;
     private bool jumpBufferActive = false;
     private bool jumpButtonPressed = false;
+    private int currentAirJumps;
     private bool CanJump
     {
         get
@@ -56,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
         gravityForce = -(2 * jumpHeigth) / Mathf.Pow(timeToJumpApex, 2);
         jumpForce = Mathf.Abs(gravityForce) * timeToJumpApex;
         finalGravityForce = gravityForce;
+        currentAirJumps = numberOfAirJumps;
     }
     private void SetCollisionDetectionPoints()
     {
@@ -96,10 +102,6 @@ public class PlayerMovement : MonoBehaviour
     private float CalculateVerticalVelocity()
     {
         finalGravityForce = gravityForce;
-        //if (isGrounded && desiredMovement.y <= 0.0f)
-        //{
-        //    return 0.0f;
-        //}
         if (Mathf.Abs(desiredMovement.y) < appexPoint && jumpButtonPressed)
         {
             finalGravityForce = gravityForce / 10;
@@ -119,8 +121,12 @@ public class PlayerMovement : MonoBehaviour
     private void JumpAction()
     {
         
-        if (CanJump)
+        if (CanJump || currentAirJumps > 0)
         {
+            if (!CanJump)
+            {
+                currentAirJumps--;
+            }
             desiredMovement.y = jumpForce;
             jumpBufferActive = false;
             return;
@@ -155,18 +161,12 @@ public class PlayerMovement : MonoBehaviour
             {
                 auxCurrentSpeed = ray.distance;
             }
-            //lastTimeGrounded = Time.time;
-            //ShouldJumpAfterFall();
         }
         return auxCurrentSpeed * Mathf.Sign(currentSpeed);
     }
     private void ShouldJumpAfterFall()
     {
-        if (isGrounded)
-        {
-            return;
-        }
-        if (Mathf.Abs(Time.time - lastTimeJumpPressed) < jumpInputBuffer)
+        if (Mathf.Abs(Time.time - lastTimeJumpPressed) < jumpInputBuffer && jumpButtonPressed)
         {
             jumpBufferActive = true;
         }
@@ -211,7 +211,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void Move()
     {
-        desiredMovement.y = CalculateVerticalVelocity();
+        desiredMovement.y = Mathf.Max(CalculateVerticalVelocity(), -maxFallSpeed) ;
         transform.position += ContraintMovement(desiredMovement * Time.deltaTime).ToVector3();
     }
     private Vector2 ContraintMovement(Vector2 currentMovement)
@@ -230,7 +230,8 @@ public class PlayerMovement : MonoBehaviour
         {
             if (desiredMovement.y < 0.0f)
             {
-                //We just landed, do the input buffer check here
+                currentAirJumps = numberOfAirJumps;
+                ShouldJumpAfterFall();
             }
             lastTimeGrounded = Time.time;
             desiredMovement.y = 0.0f;
