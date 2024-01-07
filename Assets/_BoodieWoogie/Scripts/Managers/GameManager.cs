@@ -24,14 +24,14 @@ public class GameManager : MonoBehaviour
     {
         if (playerInput)
         {
-            playerInput.OnStartEvent += HandleStop;
+            //playerInput.OnStartEvent += HandleStop;
         }
     }
     private void OnDisable()
     {
         if (playerInput)
         {
-            playerInput.OnStartEvent -= HandleStop;
+            //playerInput.OnStartEvent -= HandleStop;
         }
     }
     public void HandleStop()

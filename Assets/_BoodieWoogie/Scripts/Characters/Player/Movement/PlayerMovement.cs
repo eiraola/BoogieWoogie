@@ -212,9 +212,9 @@ public class PlayerMovement : MonoBehaviour
     private void Move()
     {
         desiredMovement.y = Mathf.Max(CalculateVerticalVelocity(), -maxFallSpeed) ;
-        transform.position += ContraintMovement(desiredMovement * Time.deltaTime).ToVector3();
+        transform.position += ConstraintMovement(desiredMovement * Time.deltaTime).ToVector3();
     }
-    private Vector2 ContraintMovement(Vector2 currentMovement)
+    private Vector2 ConstraintMovement(Vector2 currentMovement)
     {
         if (HorizontalCollisionCheck((currentMovement * Vector2.right).normalized))
         {

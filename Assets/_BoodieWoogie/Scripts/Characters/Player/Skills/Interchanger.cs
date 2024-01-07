@@ -86,10 +86,33 @@ public struct InterchangableSlot
         {
             return;
         }
-        interchangable.Interchange(newPos);
+        interchangable.Interchange(GetValidPosition(newPos));
         interchangable.Unselect();
         interchangable = null;
        
+    }
+    private Vector3 GetValidPosition(Vector3 interchangePoint)
+    {
+        Vector3 origin = interchangable.GetGameObject().transform.position;
+        Vector3 direction = interchangePoint - origin;
+        LayerMask lm = LayerMask.NameToLayer(Constants.LAYER_TINTERRUPTOR);
+        RaycastHit2D ray = Physics2D.Raycast(origin, direction.normalized, direction.magnitude * 1.1F, 1 << lm);
+        Debug.DrawRay(origin,  direction, side == EInterchangableSide.L?Color.black:Color.blue, 10.0f);
+        if (ray.collider == null)
+        {
+            return interchangePoint;
+        }
+        if (ray.distance < direction.magnitude)
+        {
+            return CorrectAppearancePositionAfterInterruption(ray.point, (direction.x * Vector3.right).normalized);
+        }
+        return interchangePoint;
+    }
+    private Vector3 CorrectAppearancePositionAfterInterruption(Vector3 impactPoint, Vector3 direction)
+    {
+        Collider2D collider = interchangable.GetGameObject().GetComponent<Collider2D>();
+        float colliderSize = Mathf.Abs(collider.bounds.min.x - collider.bounds.max.x)/2;
+        return impactPoint - direction * (colliderSize + 0.1f);
     }
     public void Reset()
     {
@@ -107,6 +130,7 @@ public class Interchanger : MonoBehaviour
     [SerializeField]
     private PlayerInput playerInput;
     private List<IInterchangable> interchangables = new List<IInterchangable>();
+    private IInterchangable playerInterchangable;
     private InterchangableSlot interchangableL;
     private InterchangableSlot interchangableR;
 
@@ -135,6 +159,7 @@ public class Interchanger : MonoBehaviour
         interchangables = new List<IInterchangable>();
         if (playerGO.TryGetComponent<IInterchangable>(out IInterchangable interchangablePlayer))
         {
+            playerInterchangable = interchangablePlayer;
             interchangables.Add(interchangablePlayer);
         }
         for (int i = 0; i < interchangablesGO.Length; i++)
@@ -158,9 +183,17 @@ public class Interchanger : MonoBehaviour
     }
     private void Interchange()
     {
-        if (!interchangableR.IsValid() || !interchangableL.IsValid())
+        if (!interchangableR.IsValid() && !interchangableL.IsValid())
         {
             return;
+        }
+        if (!interchangableL.IsValid())
+        {
+            interchangableL.interchangable = playerInterchangable;
+        }
+        if (!interchangableR.IsValid())
+        {
+            interchangableR.interchangable = playerInterchangable;
         }
         Vector3 auxMovablePosition = interchangableL.Position;
         interchangableL.Interchange(interchangableR.Position);

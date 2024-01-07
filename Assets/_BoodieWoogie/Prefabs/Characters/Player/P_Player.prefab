@@ -182,6 +182,7 @@ GameObject:
   - component: {fileID: 4369591238608116389}
   - component: {fileID: 8483158837836748548}
   - component: {fileID: 6854531838941747234}
+  - component: {fileID: 7114327267205453055}
   - component: {fileID: 4694777658376864456}
   - component: {fileID: 4163074928232251696}
   m_Layer: 3
@@ -314,7 +315,7 @@ MonoBehaviour:
   lectureDistance: 0.05
   layersToIgnore:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 72
   jumpHeigth: 3
   timeToJumpApex: 0.4
   CoyoteTimePeriod: 0.1
@@ -349,6 +350,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SelectedSpriteR: {fileID: 5558204407835078524}
   SelectedSpriteL: {fileID: 4746605282747289654}
+--- !u!114 &7114327267205453055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6719333238343742104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3db800d9baed64aa16bae24ab482f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 10
+  OnHpLimitReachedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDamageDoneEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &4694777658376864456
 MonoBehaviour:
   m_ObjectHideFlags: 0
