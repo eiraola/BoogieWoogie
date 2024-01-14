@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float lectureDistance = 0.1f;
     [SerializeField]
+    private float lectureHolgure = 0.01f;
+    [SerializeField]
     private LayerMask layersToIgnore = new LayerMask();
     [SerializeField]
     private float jumpHeigth = 0.0f;
@@ -34,15 +36,12 @@ public class PlayerMovement : MonoBehaviour
     private float maxFallSpeed = 20.0f;
     private float gravityForce = 1.6f;
     private float jumpForce = 1.6f;
-    private List<Vector2> collisionDetectionPoints = new List<Vector2>();
     private CapsuleCollider2D playerCollider;
     private Vector2 desiredMovement = new Vector2();
-    private Vector2 finalMovement = new Vector2();
     private Bounds colliderBounds;
     private float finalGravityForce = 0.0f;
     private float lastTimeGrounded = 0.0f;
     private float lastTimeJumpPressed = float.MaxValue;
-    private bool isGrounded = false;
     private bool jumpBufferActive = false;
     private bool jumpButtonPressed = false;
     private int currentAirJumps;
@@ -141,29 +140,7 @@ public class PlayerMovement : MonoBehaviour
             desiredMovement.y = desiredMovement.y / 2;
         }
     }
-    private float MaxVerticalSpeed(float currentSpeed)
-    {
-        if (currentSpeed > 0.0f)
-        {
-            return currentSpeed;
-        }
-        RaycastHit2D ray;
-        float auxCurrentSpeed = Mathf.Abs(currentSpeed);
-        colliderBounds = playerCollider.bounds;
-        float width = colliderBounds.max.x - colliderBounds.min.x;
-        float spaceBetweenLectures = width / (float)groundLectureNumber;
-        collisionDetectionPoints = new List<Vector2>();
-        for (int i = 0; i <= groundLectureNumber; i++)
-        {
-            ray = Physics2D.Raycast(colliderBounds.min.ToVector2() + Vector2.right * spaceBetweenLectures * i, Vector2.down, auxCurrentSpeed, ~layersToIgnore);
-            Debug.DrawLine(colliderBounds.min.ToVector2() + Vector2.right * spaceBetweenLectures * i, colliderBounds.min.ToVector2() + Vector2.right * spaceBetweenLectures * i + Vector2.down * auxCurrentSpeed );
-            if (ray.collider != null)
-            {
-                auxCurrentSpeed = ray.distance;
-            }
-        }
-        return auxCurrentSpeed * Mathf.Sign(currentSpeed);
-    }
+
     private void ShouldJumpAfterFall()
     {
         if (Mathf.Abs(Time.time - lastTimeJumpPressed) < jumpInputBuffer && jumpButtonPressed)
@@ -178,49 +155,58 @@ public class PlayerMovement : MonoBehaviour
             JumpAction();
         }
     }
-    private bool HorizontalCollisionCheck(Vector2 direction)
+    private float MaxHorizontalSpeed(float currentMovement)
     {
-        Vector2 origin;
+        colliderBounds = playerCollider.bounds;
+        Vector2 direction = (Vector2.right * currentMovement).normalized;
+        Vector2 origin = Vector2.up * colliderBounds.min + Vector2.up * 0.025f;
         float width = colliderBounds.max.y - colliderBounds.min.y;
-        if (direction == Vector2.right)
-        {
-            origin = Vector2.up * colliderBounds.min + Vector2.up * 0.025f + Vector2.right * colliderBounds.max;
-            return CheckCollisions(origin, Vector2.up, Vector2.right, width, lectureDistance, lateralLectureNumber);
-        }
-        origin = Vector2.up * colliderBounds.min + Vector2.up * 0.025f + Vector2.right * colliderBounds.min;
-        return CheckCollisions(origin, Vector2.up, Vector2.left, width, lectureDistance, lateralLectureNumber);
+        origin += direction == Vector2.right ? Vector2.right * colliderBounds.max : Vector2.right * colliderBounds.min;
+
+        return MaxMovementInDirection(origin, Vector2.up, direction, width, lateralLectureNumber, currentMovement);
     }
-    private bool CheckCollisions(Vector2 origin, Vector2 lectureDirection, Vector2 direction, float width,  float distance, int numLectures)
+    private float MaxMovementInDirection(Vector2 origin, Vector2 lectureDirection, Vector2 direction, float width, int numLectures, float currentSpeed)
     {
         RaycastHit2D ray;
-        colliderBounds = playerCollider.bounds;
+        float auxCurrentSpeed  = Mathf.Abs(currentSpeed);
         float spaceBetweenLectures = width / (float)numLectures;
-        collisionDetectionPoints = new List<Vector2>();
         for (int i = 0; i <= numLectures; i++)
         {
-            ray = Physics2D.Raycast(origin + lectureDirection * spaceBetweenLectures * i, direction, distance, ~layersToIgnore);
-            Debug.DrawLine(origin + lectureDirection * spaceBetweenLectures * i, origin + lectureDirection * spaceBetweenLectures * i + direction * distance);
-            if (ray.collider == null)
+            ray = Physics2D.Raycast(origin + lectureDirection * spaceBetweenLectures * i, direction, auxCurrentSpeed, ~layersToIgnore);
+            Debug.DrawLine(origin + lectureDirection * spaceBetweenLectures * i, origin + lectureDirection * spaceBetweenLectures * i +direction *( auxCurrentSpeed));
+            if (ray.collider != null)
             {
-                continue;
+                auxCurrentSpeed = ray.distance ;
             }
-            return true;
-
         }
-        return false;
+        return auxCurrentSpeed * Mathf.Sign(currentSpeed);
+    }
+    private float MaxVerticalSpeed(float currentSpeed)
+    {
+
+        RaycastHit2D ray;
+        float auxCurrentSpeed = Mathf.Abs(currentSpeed);
+        colliderBounds = playerCollider.bounds;
+        float width = (colliderBounds.max.x - colliderBounds.min.x) - lectureHolgure;
+        float spaceBetweenLectures = width / (float)groundLectureNumber;
+        if (currentSpeed > 0.0f)
+        {
+            return MaxMovementInDirection(new Vector2 (colliderBounds.min.ToVector2().x, colliderBounds.max.ToVector2().y) + Vector2.right * lectureHolgure / 2, Vector2.right, Vector2.up, width, lateralLectureNumber, currentSpeed);
+        }
+        return MaxMovementInDirection(colliderBounds.min.ToVector2() + Vector2.right * lectureHolgure / 2, Vector2.right, Vector2.down, width, lateralLectureNumber, currentSpeed);
     }
     private void Move()
     {
         desiredMovement.y = Mathf.Max(CalculateVerticalVelocity(), -maxFallSpeed) ;
-        transform.position += ConstraintMovement(desiredMovement * Time.deltaTime).ToVector3();
+        ConstraintMovement(desiredMovement * Time.deltaTime).ToVector3();
     }
     private Vector2 ConstraintMovement(Vector2 currentMovement)
     {
-        if (HorizontalCollisionCheck((currentMovement * Vector2.right).normalized))
-        {
-            currentMovement.x = 0.0f;
-        }
+
+        currentMovement.x = MaxHorizontalSpeed(currentMovement.x);
+        transform.position += Vector3.right * currentMovement.x;
         currentMovement.y = MaxVerticalSpeed(currentMovement.y);
+        transform.position += Vector3.up * currentMovement.y;
         CheckIfGrounded(currentMovement);
         return currentMovement;
     }
@@ -251,11 +237,5 @@ public class PlayerMovement : MonoBehaviour
         Gizmos.DrawSphere(colliderBounds.min, 0.1f);
         float width = colliderBounds.max.x - colliderBounds.min.x;
         Gizmos.color = Color.green;
-        foreach (Vector2 item in collisionDetectionPoints)
-        {
-            Gizmos.DrawSphere(item.ToVector3(), 0.1f);
-        }
-       
-
     }
 }
